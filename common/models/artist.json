@@ -1,0 +1,73 @@
+{
+    "name": "Artist",
+    "base": "PersistedModel",
+    "idInjection": true,
+    "options": {
+        "validateUpsert": true
+    },
+    "mixins": {
+        "TimeStamp": true
+    },
+    "properties": {
+        "name": {
+            "type": "string",
+            "required": true
+        },
+        "image": {
+            "type": "string",
+            "required": false
+        },
+        "outline": {
+            "type": "string",
+            "required": true
+        },
+        "description": {
+            "type": "string"
+        },
+        "telephone": {
+            "type": "string"
+        },
+        "email": {
+            "type": "string"
+        },
+        "website": {
+            "type": "string"
+        }
+    },
+    "validations": [],
+    "relations": {
+        "artworks": {
+            "type": "hasMany",
+            "model": "Artwork",
+            "foreignKey": ""
+        }
+    },
+    "acls": [
+        {
+            "accessType": "*",
+            "principalType": "ROLE",
+            "principalId": "$everyone",
+            "permission": "DENY"
+    },
+        {
+            "accessType": "READ",
+            "principalType": "ROLE",
+            "principalId": "$authenticated",
+            "permission": "ALLOW"
+    },
+        {
+            "accessType": "EXECUTE",
+            "principalType": "ROLE",
+            "principalId": "admin",
+            "permission": "ALLOW",
+            "property": "create"
+    },
+        {
+            "accessType": "WRITE",
+            "principalType": "ROLE",
+            "principalId": "admin",
+            "permission": "ALLOW"
+    }
+  ],
+    "methods": {}
+}

@@ -1,0 +1,17 @@
+{
+  "db": {
+    "name": "db",
+    "connector": "memory"
+  },
+  "MongoDB": {
+    "database": "openstudio",
+    "name": "MongoDB",
+    "connector": "mongodb"
+  },
+  "filestore": {
+    "name": "filestore",
+    "connector": "loopback-component-storage",
+    "provider": "filesystem",
+    "root": "./server/storage"
+  }
+}
