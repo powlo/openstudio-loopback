@@ -9,7 +9,7 @@ var app = require('../server');
 var Artist = app.models.Artist;
 var Container = app.models.Container;
 
-const base_dir = '../../data/';
+const base_dir = '../raw/';
 const container_dir = '../data/upload/content';
 const container_url = 'http://localhost:8080/api/Containers/content/download/{file}';
 
