@@ -10,14 +10,14 @@ const async = require('async');
 
 const base_url = 'https://www.camopenstudios.co.uk';
 const grid_url = base_url + '/artist-search/a-to-z-grid';
-const base_dir = '../../data/'
+const base_dir = '../raw/'
 fs.mkdir(base_dir, function (err) {});
 
 //given a url return a json object for an artist
 var getdetails = function (url) {
     request({
         url: url,
-        timeout: 6000000
+        timeout: 20000000
     }, function (error, response, body) {
         if (error) {
             console.log('Error fetching from ' + url);
@@ -33,7 +33,7 @@ var getdetails = function (url) {
         var $ = cheerio.load(body);
         if (!$('.ds-artist-summary .user-summary').has('h2.block__title:contains("July Open Studios")')) return;
 
-        var artist_stringified = $('.ds-artist-summary .title').text().trim().toLowerCase().replace(/\s+/gi, '-');
+        var id = $('.ds-artist-summary .title').text().trim().toLowerCase().replace(/\s+/gi, '-');
         var name = $('.ds-artist-summary .title').text().trim();
         var tags = $('.ds-artist-summary .subtitle').text().trim();
         var outline = $('.ds-artist-summary .summary-text').text().trim();
@@ -45,6 +45,7 @@ var getdetails = function (url) {
         if (!name) return;
 
         var artist = {
+            id: id,
             name: name
         };
         if (outline) artist["outline"] = outline;
@@ -53,7 +54,7 @@ var getdetails = function (url) {
         if (email) artist["email"] = email;
         if (website) artist["website"] = website;
 
-        dir = path.join(base_dir, artist_stringified);
+        dir = path.join(base_dir, id);
 
         fs.mkdir(dir, function () {
             details_fname = path.join(dir, 'details.json');
