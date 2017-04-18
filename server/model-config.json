@@ -35,7 +35,9 @@
   },
   "Artist": {
     "dataSource": "MongoDB",
-    "public": true
+    "public": true,
+    "$promise": {},
+    "$resolved": true
   },
   "StudioUser": {
     "dataSource": "MongoDB",
