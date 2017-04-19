@@ -9,7 +9,7 @@ const fs = require('fs');
 const async = require('async');
 
 const base_url = 'https://www.camopenstudios.co.uk';
-const grid_url = base_url + '/artist-search/a-to-z-grid';
+const grid_url = base_url + '/cos-search/a-to-z-grid';
 const base_dir = '../raw/'
 fs.mkdir(base_dir, function (err) {});
 
@@ -31,37 +31,48 @@ var getdetails = function (url) {
         }
 
         var $ = cheerio.load(body);
-        if (!$('.ds-artist-summary .user-summary').has('h2.block__title:contains("July Open Studios")')) return;
+        //if (!$('.ds-artist-summary .user-summary').has('h2.block__title:contains("July Open Studios")')) return;
 
-        var id = $('.ds-artist-summary .title').text().trim().toLowerCase().replace(/\s+/gi, '-');
-        var name = $('.ds-artist-summary .title').text().trim();
-        var tags = $('.ds-artist-summary .subtitle').text().trim();
-        var outline = $('.ds-artist-summary .summary-text').text().trim();
-        var description = $('.ds-artist-summary .long-text').text().trim();
-        var telephone = $(".summary-contact .label:contains('Telephone')").text().trim();
-        var email = $(".summary-contact .label:contains('Email')").text().trim();
-        var website = $(".summary-contact .label:contains('Website')").text().trim();
+        var studio_number = $('.cos-studio-number').text();
+        var name = $('.cos-public-name').text().trim();
+        var location_type = $('.cos-location-type').text().trim();
+        var media_type = $('.cos-media-type').text().trim();
+        var text = $('.cos-text').text().trim();
+        var thoroughfare = $('.cos-address .thoroughfare').text().trim();
+        var premise = $('.cos-address .premise').text().trim();
+        var locality = $('.cos-address .locality').text().trim();
+        var state = $('.cos-address .state').text().trim();
+        var postal_code = $('.cos-address .postal-code').text().trim();
+        var telephone = $(".cos-public-telephone").text().trim();
+        var email = $(".cos-public-email").text().trim();
+        var website = $(".cos-website").text().trim();
 
-        if (!name) return;
+        if (!name) return; //we done goofed
 
-        var artist = {
-            id: id,
-            name: name
-        };
-        if (outline) artist["outline"] = outline;
-        if (description) artist["description"] = description;
-        if (telephone) artist["telephone"] = telephone;
-        if (email) artist["email"] = email;
-        if (website) artist["website"] = website;
+        var artist = new Object();
 
-        dir = path.join(base_dir, id);
+        artist['studio_number'] = $('.cos-studio-number').text();
+        artist['name'] = $('.cos-public-name').text().trim();
+        artist['location_type'] = $('.cos-location-type').text().trim();
+        artist['media_type'] = $('.cos-media-type').text().trim();
+        artist['text'] = $('.cos-text').text().trim();
+        artist['thoroughfare'] = $('.cos-address .thoroughfare').text().trim();
+        artist['premise'] = $('.cos-address .premise').text().trim();
+        artist['locality'] = $('.cos-address .locality').text().trim();
+        artist['state'] = $('.cos-address .state').text().trim();
+        artist['postal_code'] = $('.cos-address .postal-code').text().trim();
+        artist['telephone'] = $(".cos-public-telephone").text().trim();
+        artist['email'] = $(".cos-public-email").text().trim();
+        artist['website'] = $(".cos-website").text().trim();
+
+        dir = path.join(base_dir, artist['studio_number']);
 
         fs.mkdir(dir, function () {
             details_fname = path.join(dir, 'details.json');
             image_fname = path.join(dir, 'image.jpeg');
             fs.writeFile(details_fname, JSON.stringify(artist, null, '\t'));
             var ws = fs.createWriteStream(image_fname);
-            var image = $('img[alt="Member image"]').get(0);
+            var image = $('.file-image img').get(0);
             request(image.attribs.src).pipe(ws);
         })
     });
@@ -69,7 +80,7 @@ var getdetails = function (url) {
 
 request(grid_url, function (error, response, body) {
     var $ = cheerio.load(body);
-    var grid = $('.item-grid-list .views-row');
+    var grid = $('.item-cos-grid-list .views-row');
 
     var urls = grid.map(function (index, element) {
         return base_url + $(element).find('a').first().get(0).attribs.href;

@@ -50,5 +50,11 @@
   "Container": {
     "dataSource": "filestore",
     "public": true
+  },
+  "Studio": {
+    "dataSource": "MongoDB",
+    "public": true,
+    "$promise": {},
+    "$resolved": true
   }
 }

@@ -6,12 +6,22 @@ var path = require('path');
 var request = require('request');
 
 var app = require('../server');
-var Artist = app.models.Artist;
+var Studio = app.models.Studio;
 var Container = app.models.Container;
 
 const base_dir = '../raw/';
 const container_dir = '../data/upload/content';
 const container_url = 'http://localhost:8080/api/Containers/content/download/{file}';
+
+function get_rnd() {
+  return Math.floor(Math.random() * Math.pow(10, 15) * 9 + Math.pow(10, 15)).toString(16);
+}
+
+function copyfile(src, dest) {
+  var rd_stream = fs.createReadStream(src);
+  var wr_stream = fs.createWriteStream(dest);
+  rd_stream.pipe(wr_stream);
+}
 
 console.log(path.resolve(base_dir));
 fs.readdir(base_dir, function (err, items) {
@@ -34,29 +44,18 @@ fs.readdir(base_dir, function (err, items) {
                 console.log('Couldn\'t parse data in file ' + data_fname + ' for ' + items[i]);
                 return;
             }
-            Artist.create(obj, function (err, artist) {
+
+            //create a random file name and copy to content folder
+            var src = path.join(base_dir, items[i], 'image.jpeg');
+            var rnd = get_rnd();
+            var dest = path.join(container_dir, rnd + ".jpeg");
+            copyfile(src, dest);
+            obj.image = container_url.replace(/{file}/, rnd + ".jpeg");
+            Studio.create(obj, function (err, studio) {
                 if (err) {
                     console.log(err.message);
                     return;
                 }
-                var image_fname = path.join(base_dir, items[i], 'image.jpeg');
-                var rnd_jpeg = Math.floor(Math.random() * Math.pow(10, 15) * 9 + Math.pow(10, 15)).toString(16) + '.jpeg';
-                var rnd_fname = path.join(container_dir, rnd_jpeg);
-                var rd_stream = fs.createReadStream(image_fname);
-                var wr_stream = fs.createWriteStream(rnd_fname);
-                rd_stream.on('error', function (err) {
-                    console.log('Cannot read from ' + image_fname);
-                    console.log(err);
-                });
-                wr_stream.on('error', function (err) {
-                    console.log('Cannot write to ' + rnd_fname);
-                });
-                wr_stream.on('finish', function () {
-                    artist.image = container_url.replace(/{file}/, rnd_jpeg);
-                    artist.save();
-                    console.log('Created record for ' + obj.name);
-                });
-                rd_stream.pipe(wr_stream);
             });
         });
     }
