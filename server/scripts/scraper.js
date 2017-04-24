@@ -1,8 +1,8 @@
-//This scraper will go through the a-z and pull artists that are taking
+//This scraper will go through the a-z and pull studios that are taking
 //part in the open studio event.
-//It will then pull artist details and POST them to the server.
+/*jshint esversion: 6 */
 
-const cheerio = require('cheerio');
+const scrapeIt = require('scrape-it');
 const request = require('request');
 const path = require('path');
 const fs = require('fs');
@@ -10,82 +10,99 @@ const async = require('async');
 
 const base_url = 'https://www.camopenstudios.co.uk';
 const grid_url = base_url + '/cos-search/a-to-z-grid';
-const base_dir = '../raw/'
+const container_url = 'http://localhost:8080/api/Containers/content/download/{file}';
+const container_dir = '../data/upload/content';
+const base_dir = '../raw/';
+
+const app = require('../server');
+const Studio = app.models.Studio;
+const Container = app.models.Container;
+
 fs.mkdir(base_dir, function (err) {});
 
-//given a url return a json object for an artist
-var getdetails = function (url) {
-    request({
-        url: url,
-        timeout: 20000000
-    }, function (error, response, body) {
-        if (error) {
-            console.log('Error fetching from ' + url);
-            console.log(error);
-            return;
-        }
-        if (response.statusCode !== 200) {
-            console.log('Status code: ' + response.statusCode + ' for ' + url);
-            console.log(body);
-            return;
-        }
-
-        var $ = cheerio.load(body);
-        //if (!$('.ds-artist-summary .user-summary').has('h2.block__title:contains("July Open Studios")')) return;
-
-        var studio_number = $('.cos-studio-number').text();
-        var name = $('.cos-public-name').text().trim();
-        var location_type = $('.cos-location-type').text().trim();
-        var media_type = $('.cos-media-type').text().trim();
-        var text = $('.cos-text').text().trim();
-        var thoroughfare = $('.cos-address .thoroughfare').text().trim();
-        var premise = $('.cos-address .premise').text().trim();
-        var locality = $('.cos-address .locality').text().trim();
-        var state = $('.cos-address .state').text().trim();
-        var postal_code = $('.cos-address .postal-code').text().trim();
-        var telephone = $(".cos-public-telephone").text().trim();
-        var email = $(".cos-public-email").text().trim();
-        var website = $(".cos-website").text().trim();
-
-        if (!name) return; //we done goofed
-
-        var artist = new Object();
-
-        artist['studio_number'] = $('.cos-studio-number').text();
-        artist['name'] = $('.cos-public-name').text().trim();
-        artist['location_type'] = $('.cos-location-type').text().trim();
-        artist['media_type'] = $('.cos-media-type').text().trim();
-        artist['text'] = $('.cos-text').text().trim();
-        artist['thoroughfare'] = $('.cos-address .thoroughfare').text().trim();
-        artist['premise'] = $('.cos-address .premise').text().trim();
-        artist['locality'] = $('.cos-address .locality').text().trim();
-        artist['state'] = $('.cos-address .state').text().trim();
-        artist['postal_code'] = $('.cos-address .postal-code').text().trim();
-        artist['telephone'] = $(".cos-public-telephone").text().trim();
-        artist['email'] = $(".cos-public-email").text().trim();
-        artist['website'] = $(".cos-website").text().trim();
-
-        dir = path.join(base_dir, artist['studio_number']);
-
-        fs.mkdir(dir, function () {
-            details_fname = path.join(dir, 'details.json');
-            image_fname = path.join(dir, 'image.jpeg');
-            fs.writeFile(details_fname, JSON.stringify(artist, null, '\t'));
-            var ws = fs.createWriteStream(image_fname);
-            var image = $('.file-image img').get(0);
-            request(image.attribs.src).pipe(ws);
-        })
-    });
+//utility function. Maybe move to own module.
+function get_rnd() {
+  return Math.floor(Math.random() * Math.pow(10, 15) * 9 + Math.pow(10, 15)).toString(16);
 }
 
-request(grid_url, function (error, response, body) {
-    var $ = cheerio.load(body);
-    var grid = $('.item-cos-grid-list .views-row');
+//probably better to do a callback instead of passing around an array
+function scrape_grid(grid_url, studio_urls) {
+  scrapeIt(grid_url, {
+    studios : {
+      listItem: '.item-cos-grid-list .views-row',
+      data: {
+        url: {
+          selector: '.cos-rhs > a',
+          attr: 'href',
+          convert: x => base_url + x
+        }
+      }
+    },
+    next: {
+      selector: '.pager .pager__item--next > a',
+      attr: 'href'
+    }
+  }, (err, page) => {
+      if (err) {
+        console.log('eek');
+        console.log(err);
+        return;
+      }
+      studio_urls = studio_urls.concat(page.studios);
+      if (page.next){
+        scrape_grid(base_url + page.next, studio_urls);
+      }
+      else {
+        //the recursion nightmare is over
+        console.log('Total studio urls: ' + studio_urls.length);
+        studio_urls.forEach(function(thing) {
 
-    var urls = grid.map(function (index, element) {
-        return base_url + $(element).find('a').first().get(0).attribs.href;
+          scrape_studio(thing.url);
+        });
+      }
+  });
+}
+
+function scrape_studio(url) {
+  console.log('scraping studio at ' + url);
+  scrapeIt(url, {
+    studio_number: '.cos-studio-number',
+    name: '.cos-public-name',
+    image: {
+      selector: '.cos-rhs .content > img',
+      attr: 'src'
+    },
+    location_type: '.cos-location-type',
+    media_type: '.cos-media-type',
+    text: '.cos-text',
+    thoroughfare: '.cos-address .thoroughfare',
+    premise: '.cos-address .premise',
+    locality: '.cos-address .locality',
+    state: '.cos-address .state',
+    postal_code: '.cos-address .postal-code',
+    telephone: ".cos-public-telephone",
+    email: ".cos-public-email",
+    website: ".cos-website"
+  }, (err, page) => {
+    if (err) {
+      console.log("oh no");
+      console.log(JSON.stringify(err));
+      return;
+    }
+    if (page.name === '' || undefined) {
+      console.log('Got empty page for ' + url);
+      return;
+    }
+    var rnd = get_rnd();
+    //we pipe the image to a local dir and rewrite the image attribute
+    var image_fname = path.join(container_dir, rnd + ".jpeg");
+    request(page.image).pipe(fs.createWriteStream(image_fname));
+    page.image = container_url.replace(/{file}/, rnd + ".jpeg");
+    Studio.upsertWithWhere({name: page.name}, page, function(err, obj){
+      console.log('Created/updated db entry for "' + obj.name + '"');
     });
-    urls.each(function () {
-        getdetails(this.toString());
-    })
-});
+  });
+}
+
+studio_urls = [];
+scrape_grid(grid_url, studio_urls);
