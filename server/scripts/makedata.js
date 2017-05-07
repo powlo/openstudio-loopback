@@ -6,7 +6,7 @@ var path = require('path');
 var request = require('request');
 
 var app = require('../server');
-var Studio = app.models.Studio;
+var Event = app.models.Event;
 var Container = app.models.Container;
 
 const base_dir = '../raw/';
@@ -51,7 +51,7 @@ fs.readdir(base_dir, function (err, items) {
             var dest = path.join(container_dir, rnd + ".jpeg");
             copyfile(src, dest);
             obj.image = container_url.replace(/{file}/, rnd + ".jpeg");
-            Studio.create(obj, function (err, studio) {
+            Event.create(obj, function (err, event) {
                 if (err) {
                     console.log(err.message);
                     return;

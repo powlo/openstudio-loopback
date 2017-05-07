@@ -51,7 +51,7 @@
     "dataSource": "filestore",
     "public": true
   },
-  "Studio": {
+  "Event": {
     "dataSource": "MongoDB",
     "public": true,
     "$promise": {},

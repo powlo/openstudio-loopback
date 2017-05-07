@@ -1,5 +1,5 @@
 {
-  "name": "Studio",
+  "name": "Event",
   "base": "PersistedModel",
   "strict": false,
   "idInjection": true,

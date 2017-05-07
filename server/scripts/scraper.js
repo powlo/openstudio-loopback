@@ -1,5 +1,4 @@
-//This scraper will go through the a-z and pull studios that are taking
-//part in the open studio event.
+//This scraper will go through the "Studios" page and pull out events.
 /*jshint esversion: 6 */
 
 const scrapeIt = require('scrape-it');
@@ -15,7 +14,7 @@ const container_dir = '../data/upload/content';
 const base_dir = '../raw/';
 
 const app = require('../server');
-const Studio = app.models.Studio;
+const Event = app.models.Event;
 const Container = app.models.Container;
 
 fs.mkdir(base_dir, function (err) {});
@@ -26,9 +25,9 @@ function get_rnd() {
 }
 
 //probably better to do a callback instead of passing around an array
-function scrape_grid(grid_url, studio_urls) {
+function scrape_grid(grid_url, event_urls) {
   scrapeIt(grid_url, {
-    studios : {
+    events : {
       listItem: '.item-cos-grid-list .views-row',
       data: {
         url: {
@@ -48,23 +47,23 @@ function scrape_grid(grid_url, studio_urls) {
         console.log(err);
         return;
       }
-      studio_urls = studio_urls.concat(page.studios);
+      event_urls = event_urls.concat(page.events);
       if (page.next){
-        scrape_grid(base_url + page.next, studio_urls);
+        scrape_grid(base_url + page.next, event_urls);
       }
       else {
         //the recursion nightmare is over
-        console.log('Total studio urls: ' + studio_urls.length);
-        studio_urls.forEach(function(thing) {
+        console.log('Total event urls: ' + event_urls.length);
+        event_urls.forEach(function(thing) {
 
-          scrape_studio(thing.url);
+          scrape_event(thing.url);
         });
       }
   });
 }
 
-function scrape_studio(url) {
-  console.log('scraping studio at ' + url);
+function scrape_event(url) {
+  console.log('scraping event at ' + url);
   scrapeIt(url, {
     studio_number: '.cos-studio-number',
     name: '.cos-public-name',
@@ -98,11 +97,11 @@ function scrape_studio(url) {
     var image_fname = path.join(container_dir, rnd + ".jpeg");
     request(page.image).pipe(fs.createWriteStream(image_fname));
     page.image = container_url.replace(/{file}/, rnd + ".jpeg");
-    Studio.upsertWithWhere({name: page.name}, page, function(err, obj){
+    Event.upsertWithWhere({name: page.name}, page, function(err, obj){
       console.log('Created/updated db entry for "' + obj.name + '"');
     });
   });
 }
 
-studio_urls = [];
-scrape_grid(grid_url, studio_urls);
+event_urls = [];
+scrape_grid(grid_url, event_urls);
