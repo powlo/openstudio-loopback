@@ -1,11 +1,14 @@
 //This scraper will go through the "Studios" page and pull out events.
 /*jshint esversion: 6 */
-
+const loopback = require('loopback');
 const scrapeIt = require('scrape-it');
 const request = require('request');
 const path = require('path');
 const fs = require('fs');
 const async = require('async');
+const googleMapsClient = require('@google/maps').createClient({
+  key: 'AIzaSyBK8FryBmEpUNMPy31IcoF9iErtDI7JG3Q'
+});
 
 const base_url = 'https://www.camopenstudios.co.uk';
 const grid_url = base_url + '/cos-search/a-to-z-grid';
@@ -72,9 +75,19 @@ function event_cb (err, page) {
   var image_fname = path.join(container_dir, rnd + ".jpeg");
   request(page.image).pipe(fs.createWriteStream(image_fname));
   page.image = container_url.replace(/{file}/, rnd + ".jpeg");
-  Event.upsertWithWhere({name: page.name}, page, function(err, obj){
-    if (err) process.stdout.write("!");
-    else process.stdout.write(".");
+  const address = [page.thoroughfare, page.premise, page.postal_code].filter(x => x !== '').join(', ');
+  googleMapsClient.geocode({address: address},
+    function(err, response) {
+    if (!err) {
+      //assume first result is best!
+      const first_result = response.json.results[0];
+      page.geopoint = new loopback.GeoPoint({lat: first_result.geometry.location.lat,
+                              lng: first_result.geometry.location.lng});
+      Event.upsertWithWhere({name: page.name}, page, function(err, obj){
+        if (err) process.stdout.write("!");
+        else process.stdout.write(".");
+      });
+    }
   });
 }
 

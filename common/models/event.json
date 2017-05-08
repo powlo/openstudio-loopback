@@ -56,6 +56,10 @@
     "image": {
       "type": "string",
       "required": true
+    },
+    "geopoint": {
+      "type": "geopoint",
+      "required": true
     }
   },
   "validations": [],
