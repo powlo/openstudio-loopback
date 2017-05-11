@@ -60,6 +60,18 @@
     "geopoint": {
       "type": "geopoint",
       "required": true
+    },
+    "date": {
+      "type": "date",
+      "required": true
+    },
+    "start": {
+      "type": "date",
+      "required": true
+    },
+    "end": {
+      "type": "date",
+      "required": true
     }
   },
   "validations": [],

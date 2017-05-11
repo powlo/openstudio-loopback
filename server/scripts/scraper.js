@@ -24,6 +24,18 @@ function get_rnd() {
   return Math.floor(Math.random() * Math.pow(10, 15) * 9 + Math.pow(10, 15)).toString(16);
 }
 
+//takes a weekend number and returns a js Date object
+function weekend_dates(n) {
+  switch(parseInt(n, 10)){
+    case 1: return [new Date(2017, 6, 1, 12), new Date(2017, 6, 2, 12)];
+    case 2: return [new Date(2017, 6, 8, 12), new Date(2017, 6, 9, 12)];
+    case 3: return [new Date(2017, 6, 15, 12), new Date(2017, 6, 16, 12)];
+    case 4: return [new Date(2017, 6, 22, 12), new Date(2017, 6, 23, 12)];
+    default:
+      throw Error("Error: Unknown weekend number!");
+  }
+}
+
 const event_scrape = {
   studio_number: '.cos-studio-number',
   name: '.cos-public-name',
@@ -31,6 +43,14 @@ const event_scrape = {
     selector: '.cos-rhs .content > img',
     attr: 'src'
   },
+  weekends: {
+    listItem: 'ul.weekends li.week-on',
+    data: {
+      date: {
+        convert: weekend_dates
+        }
+      }
+    },
   location_type: '.cos-location-type',
   media_type: '.cos-media-type',
   text: '.cos-text',
@@ -62,6 +82,7 @@ const events_scrape = {
 };
 
 function event_cb (err, page) {
+
   if (err) {
     console.log(JSON.stringify(err));
     return;
@@ -70,22 +91,42 @@ function event_cb (err, page) {
     console.log('Got empty page for ' + page);
     return;
   }
+
+  //figure out how to create and event object from page
+  //or don't have the dates all the same when inserting.
+
+  //Each weekend has two dates. Let's flatten them.
+  const dates = page.weekends.reduce((acc, val) => acc.concat(val.date),[]);
+  delete page.weekends;
   var rnd = get_rnd();
   //we pipe the image to a local dir and rewrite the image attribute
   var image_fname = path.join(container_dir, rnd + ".jpeg");
   request(page.image).pipe(fs.createWriteStream(image_fname));
-  page.image = container_url.replace(/{file}/, rnd + ".jpeg");
+  const image_url = container_url.replace(/{file}/, rnd + ".jpeg");
   const address = [page.thoroughfare, page.premise, page.postal_code].filter(x => x !== '').join(', ');
   googleMapsClient.geocode({address: address},
     function(err, response) {
     if (!err) {
       //assume first result is best!
       const first_result = response.json.results[0];
-      page.geopoint = new loopback.GeoPoint({lat: first_result.geometry.location.lat,
+      const geopoint = new loopback.GeoPoint({lat: first_result.geometry.location.lat,
                               lng: first_result.geometry.location.lng});
-      Event.upsertWithWhere({name: page.name}, page, function(err, obj){
-        if (err) process.stdout.write("!");
-        else process.stdout.write(".");
+      dates.forEach(function(date){
+        let e = JSON.parse(JSON.stringify(page));
+
+        e.image = image_url;
+        e.geopoint = geopoint;
+        e.date = date;
+        e.start = new Date(0,0,0,11);
+        e.end = new Date(0,0,0,18);
+        Event.upsertWithWhere({name: e.name, date: e.date}, e, function(err, obj){
+          if (err) {
+            process.stdout.write("!");
+          }
+          else {
+            process.stdout.write(".");
+          }
+        });
       });
     }
   });
