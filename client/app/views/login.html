@@ -1,0 +1,23 @@
+<div class="ngdialog-message">
+  <div class="modal-container">
+    <h1>Login to OpenStudio</h1><br>
+    <div>
+      <form ng-submit="login()">
+        <div class="form-group">
+          <label class="sr-only" for="username">Username</label>
+          <input type="text" class="form-control input-lg" id="username" placeholder="Username" ng-model="loginForm.username">
+        </div>
+        <div class="form-group">
+          <label class="sr-only" for="password">Password</label>
+          <input type="password" class="form-control input-lg" id="password" placeholder="Password" ng-model="loginForm.password">
+        </div>
+        <!--<div class="checkbox">
+          <label>
+            <input type="checkbox" ng-model="rememberMe"> Remember me
+          </label>
+        </div>-->
+        <button type="submit" class="btn btn-info btn-block">Login</button>
+      </form>
+    </div>
+  </div>
+</div>
