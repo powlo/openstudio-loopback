@@ -12,7 +12,7 @@ const googleMapsClient = require('@google/maps').createClient({
 
 const base_url = 'https://www.camopenstudios.co.uk';
 const grid_url = base_url + '/cos-search/a-to-z-grid';
-const container_url = 'http://localhost:8080/api/Containers/content/download/{file}';
+const container_url = 'http://openstudio-powlo.rhcloud.com/api/Containers/content/download/{file}';
 const container_dir = '../data/upload/content';
 
 const app = require('../server');
