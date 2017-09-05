@@ -3,15 +3,15 @@
   <!--sidebar -->
   <div class="col col-xs-3 col-xs-push-9">
     <button type="button" class="btn btn-default btn-block"
-      ng-click="filter.date = today">
+      ng-click="filter.date = 'today'">
       Today
     </button>
     <button type="button" class="btn btn-default btn-block"
-      ng-click="filter.date = tomorrow">
+      ng-click="filter.date = 'tomorrow'">
       Tomorrow
     </button>
     <button type="button" class="btn btn-default btn-block"
-      ng-click="filter.date = ''">
+      ng-click="filter.date = 'all'">
       All
     </button>
     <input type="text" class="form-control" ng-model="filter.text" placeholder="Search" ng-model-options="{ debounce: 1000 }">
@@ -19,7 +19,7 @@
   <!--content-->
   <div class="col col-xs-9  col-xs-pull-3">
       <ul>
-        <li class="row" ng-repeat="(key, value) in events | orderBy: 'date' | groupBy: 'date'">
+        <li class="row" ng-repeat="(key, value) in events  | filter : filter.text | orderBy: 'date' | groupBy: 'date'">
           <div class="col col-xs-12">
             <h2 class="capitalize">{{ key | prettydate : 'EEEE d MMMM'}}</h2>
             <ul class="list-group">
