@@ -159,23 +159,25 @@ gulp.task('clean:dist', function (cb) {
 });
 
 gulp.task('client:build', ['html', 'styles'], function () {
-    var jsFilter = $.filter('**/*.js');
+    //var jsFilter = $.filter('**/*.js');
     var cssFilter = $.filter('**/*.css');
-
+    var jscssFilter = $.filter(['**/*.css', '**/*.js']);
     return gulp.src(paths.views.main)
         .pipe($.useref({
             searchPath: [yeoman.app, '.tmp']
         }))
-        .pipe(jsFilter)
+        //.pipe(jsFilter)
         //.pipe($.ngAnnotate()) //ng-annotate will fail if you use ES6 styles
         //.pipe($.uglify()) //uglify will fail if you use ES6 styles
-        .pipe(jsFilter.restore())
+        //.pipe(jsFilter.restore())
         .pipe(cssFilter)
         .pipe($.minifyCss({
             cache: true
         }))
         .pipe(cssFilter.restore())
+        .pipe(jscssFilter) //revisionify css and js, but not index.
         .pipe($.rev())
+        .pipe(jscssFilter.restore())
         .pipe($.revReplace())
         .pipe(gulp.dest(yeoman.dist));
 });
