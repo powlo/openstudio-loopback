@@ -1,0 +1,42 @@
+<div class="container">
+<div class="row">
+  <!--sidebar -->
+  <div class="col col-xs-3 col-xs-push-9">
+    <button type="button" class="btn btn-default btn-block"
+      ng-click="filter.date = 'today'">
+      Today
+    </button>
+    <button type="button" class="btn btn-default btn-block"
+      ng-click="filter.date = 'tomorrow'">
+      Tomorrow
+    </button>
+    <button type="button" class="btn btn-default btn-block"
+      ng-click="filter.date = 'all'">
+      All
+    </button>
+    <input type="text" class="form-control" ng-model="filter.text" placeholder="Search" ng-model-options="{ debounce: 1000 }">
+  </div>
+  <!--content-->
+  <div class="col col-xs-9  col-xs-pull-3">
+      <ul>
+        <li class="row" ng-repeat="(key, value) in events  | filter : filter.text | orderBy: 'date' | groupBy: 'date'">
+          <div class="col col-xs-12">
+            <h2 class="capitalize">{{ key | prettydate : 'EEEE d MMMM'}}</h2>
+            <ul class="list-group">
+              <li class="list-group-item" ng-repeat="event in value">
+                <div class="row">
+                  <div class="col col-xs-4">
+                    <div class="event-list-img" style="background-image: url({{event.image}});"></div>
+                  </div>
+                  <div class="col col-xs-8">
+                    <h3>{{event.name}} <span class="badge">{{event.studio_number}}</span></h3>
+                    <p>{{event.media_type}}</p>
+                  </div>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </li>
+      </ul>
+  </div> <!-- col content -->
+</div>

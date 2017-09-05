@@ -1,0 +1,52 @@
+<div class="container">
+  <h1>Register</h1><br>
+  <form name="regForm" ng-submit="doRegister()">
+    <div class="form-group has-feedback"
+      ng-class="{ 'has-error' : regForm.username.$invalid && regForm.username.$touched,
+                  'has-success' : regForm.username.$valid && regForm.username.$touched }">
+      <label class="sr-only" for="username">Username</label>
+      <input name="username" type="text" class="form-control" placeholder="Username" ng-model="registerData.username" required ng-minlength="3">
+      <span ng-show="regForm.username.$valid && regForm.username.$touched" class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
+      <div ng-show="regForm.username.$touched" ng-messages="regForm.username.$error">
+        <span ng-message="exists" class="help-block">This username is taken.</span>
+        <span ng-message="minlength" class="help-block">Username must be at least 3 characters long.</span>
+        <span ng-message="uniqueness" class="help-block">This username is taken.</span>
+        <span ng-message="required" class="help-block">This field is required.</span>
+      </div>
+    </div>
+    <div class="form-group has-feedback"
+      ng-class="{ 'has-error' : regForm.email.$invalid && regForm.email.$touched,
+                  'has-success' : regForm.email.$valid && regForm.email.$touched }">
+      <label class="sr-only" for="email">Email</label>
+      <input name="email" type="email" class="form-control" placeholder="Email" ng-model="registerData.email" required>
+      <span ng-show="regForm.email.$valid && regForm.email.$touched" class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
+      <div ng-show="regForm.email.$touched" ng-messages="regForm.email.$error">
+        <span ng-message="email" class="help-block">Enter a valid email address.</span>
+        <span ng-message="uniqueness" class="help-block">This email address is already in use.</span>
+        <span ng-message="required" class="help-block">This field is required.</span>
+      </div>
+    </div>
+    <div class="form-group has-feedback"
+      ng-class="{ 'has-error' : regForm.password.$invalid && regForm.password.$touched,
+                  'has-success' : regForm.password.$valid && regForm.password.$touched }">
+      <label class="sr-only" for="password">Password</label>
+      <input name="password" type="password" class="form-control" placeholder="Password" ng-model="registerData.password" required ng-minlength="6">
+      <span ng-show="regForm.password.$valid && regForm.password.$touched" class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
+      <div ng-show="regForm.password.$touched" ng-messages="regForm.password.$error">
+        <span ng-message="minlength" class="help-block">Password must be at least 6 characters.</span>
+        <span ng-message="required" class="help-block">This field is required.</span>
+      </div>
+    </div>
+    <div class="form-group  has-feedback"
+      ng-class="{ 'has-error' : regForm.confirm.$invalid && regForm.confirm.$touched,
+                  'has-success' : regForm.confirm.$valid && regForm.confirm.$touched }">
+      <label class="sr-only" for="confirm">Password Confirmation</label>
+      <input name="confirm" type="password" class="form-control" placeholder="Confirm Password" ng-model="registerData.confirm" match="registerData.password">
+      <span ng-show="regForm.confirm.$valid && regForm.confirm.$touched" class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span>
+      <div ng-show="regForm.confirm.$touched" ng-messages="regForm.confirm.$error">
+        <span ng-message="match" class="help-block">Passwords must match.</span>
+      </div>
+    </div>
+    <button type="submit" class="btn btn-info btn-block" ng-disabled="regForm.$invalid">Register</button>
+  </form>
+</div>
