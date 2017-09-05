@@ -1,5 +1,5 @@
 'use strict';
 
 angular.module('openstudioAngularApp')
-    .constant("baseURL", "http://localhost:8080/")
-    .constant("apiBaseURL", "http://localhost:8080/api/");
+    .constant("baseURL", "http://openstudio-powlo.rhcloud.com/")
+    .constant("apiBaseURL", "http://openstudio-powlo.rhcloud.com/api/");

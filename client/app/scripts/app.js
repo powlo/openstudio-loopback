@@ -25,7 +25,7 @@ angular
   ])
     .config(function ($stateProvider, $urlRouterProvider,
       LoopBackResourceProvider, uiGmapGoogleMapApiProvider) {
-        LoopBackResourceProvider.setUrlBase('http://localhost:8080/api');
+        LoopBackResourceProvider.setUrlBase('http://openstudio-powlo.rhcloud.com/api');
 
         uiGmapGoogleMapApiProvider.configure({
         key: 'AIzaSyBK8FryBmEpUNMPy31IcoF9iErtDI7JG3Q',
