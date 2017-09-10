@@ -1,0 +1,17 @@
+{
+ "facebook-login": {
+   "provider": "facebook",
+   "module": "passport-facebook",
+   "profileFields": ["gender", "link", "locale", "name", "timezone",
+     "verified", "email", "updated_time"],
+   "clientID": "1872067373051846",
+   "clientSecret": "c96aebfe42ea052003af374879a69c53",
+   "callbackURL": "/auth/facebook/callback",
+   "authPath": "/auth/facebook",
+   "callbackPath": "/auth/facebook/callback",
+   "successRedirect": "/#!/events/",
+   "failureRedirect": "/login",
+   "scope": ["email"],
+   "failureFlash": true
+ }
+}
