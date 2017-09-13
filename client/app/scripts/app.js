@@ -21,15 +21,25 @@ angular
     'ngDialog',
     'lbServices',
     'uiGmapgoogle-maps',
-    'angular.filter'
+    'angular.filter',
+    'ezfb'
   ])
-    .config(function ($stateProvider, $urlRouterProvider,
-      LoopBackResourceProvider, uiGmapGoogleMapApiProvider) {
+    .config(['$stateProvider', '$urlRouterProvider',
+      'LoopBackResourceProvider', 'uiGmapGoogleMapApiProvider', 'ezfbProvider',
+      function ($stateProvider, $urlRouterProvider,
+      LoopBackResourceProvider, uiGmapGoogleMapApiProvider, ezfbProvider) {
         LoopBackResourceProvider.setUrlBase('http://openstudio-powlo.rhcloud.com/api');
 
+        //Configure Google Map API
         uiGmapGoogleMapApiProvider.configure({
         key: 'AIzaSyBK8FryBmEpUNMPy31IcoF9iErtDI7JG3Q',
         libraries: 'drawing'
+        });
+
+        //Setup Facebook SDK.
+        ezfbProvider.setLocale('en_GB');
+        ezfbProvider.setInitParams({
+          appId: '1872067373051846'
         });
 
         $stateProvider
@@ -64,4 +74,4 @@ angular
               controller: 'RegisterController'
             });
         $urlRouterProvider.otherwise('/events/');
-    });
+    }]);

@@ -1,7 +1,8 @@
 'use strict';
 
 angular.module('openstudioAngularApp')
-.controller('BaseCtrl', ['$scope', '$state', '$rootScope', 'ngDialog', 'AuthFactory', function ($scope, $state, $rootScope, ngDialog, AuthFactory) {
+.controller('BaseCtrl', ['$scope', '$state', '$rootScope', 'ngDialog', 'AuthFactory', 'ezfb',
+function ($scope, $state, $rootScope, ngDialog, AuthFactory, ezfb) {
 
     $scope.loggedIn = false;
     $scope.username = '';
@@ -19,6 +20,15 @@ angular.module('openstudioAngularApp')
           appendClassName: 'ngdialog-login',
           controller:"LoginController"
         });
+    };
+
+    $scope.fblogin = function(){
+      ezfb.login(function (res) {
+        if (res.authResponse) {
+          console.log("Response: ");
+          console.log(res);
+        }
+      }, {scope: 'email'});
     };
 
     $scope.logOut = function() {

@@ -17,6 +17,7 @@
 </head>
 
 <body ng-app="openstudioAngularApp">
+
   <div ui-view></div>
   <!-- Google Analytics: change UA-XXXXX-X to be your site's ID -->
   <script>
@@ -31,9 +32,14 @@
     ga('send', 'pageview');
   </script>
 
-  <script src="scripts/vendor-62ff5e5068.js"></script>
+  <!--
+  This next line is a fudge because google maps utilities will raise
+  an error if google isn't available in the window.
+  -->
+  <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?v=3.exp"></script>
+  <script src="scripts/vendor-f133121a05.js"></script>
 
-  <script src="scripts/scripts-a0d886f4aa.js"></script>
+  <script src="scripts/scripts-031cf84bfd.js"></script>
 </body>
 
 </html>

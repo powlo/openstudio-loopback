@@ -14,7 +14,8 @@
     "ng-dialog": "^0.6.6",
     "angular-messages": "^1.6.2",
     "angular-google-maps": "^2.4.1",
-    "angular-filter": "^0.5.16"
+    "angular-filter": "^0.5.16",
+    "angular-easyfb": "^1.5.2"
   },
   "devDependencies": {
     "angular-mocks": "^1.4.0"

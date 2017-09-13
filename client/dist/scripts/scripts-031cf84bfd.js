@@ -21,15 +21,25 @@ angular
     'ngDialog',
     'lbServices',
     'uiGmapgoogle-maps',
-    'angular.filter'
+    'angular.filter',
+    'ezfb'
   ])
-    .config(function ($stateProvider, $urlRouterProvider,
-      LoopBackResourceProvider, uiGmapGoogleMapApiProvider) {
+    .config(['$stateProvider', '$urlRouterProvider',
+      'LoopBackResourceProvider', 'uiGmapGoogleMapApiProvider', 'ezfbProvider',
+      function ($stateProvider, $urlRouterProvider,
+      LoopBackResourceProvider, uiGmapGoogleMapApiProvider, ezfbProvider) {
         LoopBackResourceProvider.setUrlBase('http://openstudio-powlo.rhcloud.com/api');
 
+        //Configure Google Map API
         uiGmapGoogleMapApiProvider.configure({
         key: 'AIzaSyBK8FryBmEpUNMPy31IcoF9iErtDI7JG3Q',
         libraries: 'drawing'
+        });
+
+        //Setup Facebook SDK.
+        ezfbProvider.setLocale('en_GB');
+        ezfbProvider.setInitParams({
+          appId: '1872067373051846'
         });
 
         $stateProvider
@@ -64,7 +74,7 @@ angular
               controller: 'RegisterController'
             });
         $urlRouterProvider.otherwise('/events/');
-    });
+    }]);
 
 'use strict';
 
@@ -6369,7 +6379,8 @@ angular.module('openstudioAngularApp')
 'use strict';
 
 angular.module('openstudioAngularApp')
-.controller('BaseCtrl', ['$scope', '$state', '$rootScope', 'ngDialog', 'AuthFactory', function ($scope, $state, $rootScope, ngDialog, AuthFactory) {
+.controller('BaseCtrl', ['$scope', '$state', '$rootScope', 'ngDialog', 'AuthFactory', 'ezfb',
+function ($scope, $state, $rootScope, ngDialog, AuthFactory, ezfb) {
 
     $scope.loggedIn = false;
     $scope.username = '';
@@ -6387,6 +6398,15 @@ angular.module('openstudioAngularApp')
           appendClassName: 'ngdialog-login',
           controller:"LoginController"
         });
+    };
+
+    $scope.fblogin = function(){
+      ezfb.login(function (res) {
+        if (res.authResponse) {
+          console.log("Response: ");
+          console.log(res);
+        }
+      }, {scope: 'email'});
     };
 
     $scope.logOut = function() {
@@ -6585,7 +6605,8 @@ angular.module('openstudioAngularApp')
 'use strict';
 
 angular.module('openstudioAngularApp')
-.controller('LoginController', ['$scope', 'ngDialog', '$localStorage', 'AuthFactory', function ($scope, ngDialog, $localStorage, AuthFactory) {
+.controller('LoginController', ['$scope', 'ngDialog', '$localStorage', 'AuthFactory',
+  function ($scope, ngDialog, $localStorage, AuthFactory) {
 
     $scope.loginForm = $localStorage.getObject('userinfo','{}');
 

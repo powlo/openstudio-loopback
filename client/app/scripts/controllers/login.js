@@ -1,7 +1,8 @@
 'use strict';
 
 angular.module('openstudioAngularApp')
-.controller('LoginController', ['$scope', 'ngDialog', '$localStorage', 'AuthFactory', function ($scope, ngDialog, $localStorage, AuthFactory) {
+.controller('LoginController', ['$scope', 'ngDialog', '$localStorage', 'AuthFactory',
+  function ($scope, ngDialog, $localStorage, AuthFactory) {
 
     $scope.loginForm = $localStorage.getObject('userinfo','{}');
 
